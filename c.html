@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>منسق بصري</title>
+<title>منسق</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Cairo:wght@400;700&family=Changa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Noto+Kufi+Arabic:wght@400;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#171B24; --surface:#1F2530; --field:#131720; --line:#2E3646;
@@ -16,7 +16,13 @@
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;line-height:1.7}
-.wrap{max-width:780px;margin:0 auto;padding:calc(28px + env(safe-area-inset-top,0px)) 16px calc(56px + env(safe-area-inset-bottom,0px))}
+.layout{display:flex;min-height:100vh}
+.layout .wrap{flex:1;min-width:0;max-width:780px;margin:0 auto;padding:calc(28px + env(safe-area-inset-top,0px)) 16px calc(56px + env(safe-area-inset-bottom,0px))}
+.side{width:230px;flex:none;border-left:1px solid var(--line);background:var(--surface);padding:28px 18px;position:sticky;top:0;height:100vh}
+.stitle{font-size:17px;font-weight:700;margin:0 0 18px;line-height:1.5}
+.snav{display:flex;flex-direction:column;gap:6px}
+.snav button{background:none;border:0;border-radius:10px;color:var(--muted);padding:10px 12px;font:inherit;text-align:right;cursor:pointer}
+.snav button[aria-current=true]{background:var(--field);color:var(--text);border-inline-start:3px solid var(--accent)}
 h1{font-size:30px;font-weight:700;margin:0 0 6px}
 .sub{color:var(--muted);margin:0 0 20px}
 .strip{display:flex;height:64px;border-radius:12px;overflow:hidden;border:1px solid var(--line);margin-bottom:20px}
@@ -24,9 +30,7 @@ h1{font-size:30px;font-weight:700;margin:0 0 6px}
 .field label{display:block;color:var(--muted);font-size:14px;margin-bottom:6px}
 select,textarea,input[type=text]{background:var(--field);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;width:100%}
 textarea{resize:vertical}
-.tabs{display:flex;gap:6px;margin:22px 0 14px;border-bottom:1px solid var(--line)}
-.tabs button{background:none;border:0;color:var(--muted);padding:10px 14px;font:inherit;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
-.tabs button[aria-selected=true]{color:var(--text);border-bottom-color:var(--accent)}
+.tabs{display:none}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
 .crow{display:grid;grid-template-columns:44px 1fr 40px;gap:10px;align-items:center;margin-bottom:10px}
 .crow input[type=color]{width:44px;height:44px;border:0;padding:0;background:none;border-radius:10px;cursor:pointer}
@@ -66,12 +70,13 @@ button:disabled{opacity:.4;cursor:not-allowed}
 .chip i{width:20px;height:20px;border-radius:50%;border:1px solid #0004}
 .exs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
 .exs button{background:none;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
+.hint{color:var(--muted);font-size:14px;margin:0 0 14px}
 .picker h3{font-size:17px;margin:0 0 12px;font-weight:700}
 .psel{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .psel button{width:44px;height:44px;border-radius:10px;border:2px solid transparent;cursor:pointer;padding:0}
 .psel button[aria-pressed=true]{border-color:var(--text)}
 .sv{position:relative;height:200px;border-radius:12px;cursor:crosshair;touch-action:none;border:1px solid var(--line);margin-bottom:16px;overflow:hidden}
-.sv::before,.sv::after{content:"";position:absolute;inset:0}
+.sv::before,.sv::after{content:'';position:absolute;inset:0}
 .sv::before{background:linear-gradient(to right,#fff,rgba(255,255,255,0))}
 .sv::after{background:linear-gradient(to top,#000,rgba(0,0,0,0))}
 .thumb{position:absolute;width:20px;height:20px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #0008;transform:translate(-50%,-50%);pointer-events:none;z-index:1}
@@ -84,21 +89,57 @@ button:disabled{opacity:.4;cursor:not-allowed}
 #pprev{width:56px;height:56px;border-radius:12px;border:1px solid var(--line)}
 #phex{direction:ltr;font-size:17px;font-weight:700}
 .pout .btns{margin:0}
+.pvv{margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.pvv strong{font-size:16px}
+.pvv span{color:var(--muted);font-size:14px}
+.pvv.ok strong{color:var(--ok)}
+.pvv.warn strong{color:var(--warn)}
+.pvv.bad strong{color:var(--bad)}
+.canvas{border-radius:14px;border:1px solid var(--line);overflow:hidden;transition:background .15s}
+.imgband{position:relative;height:130px}
+.imgband svg{width:100%;height:100%;display:block}
+.imgband .tint{position:absolute;inset:0;opacity:.35}
+.txt{padding:22px 24px 26px}
+.txt h4{font-size:26px;margin:0 0 10px;font-weight:700}
+.txt p{margin:0;font-size:15px;line-height:1.9}
+.ctl{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin-bottom:14px}
+.ctl .cl{width:96px;color:var(--muted);font-size:14px}
+.ctl input[type=color]{width:40px;height:40px;border:0;padding:0;background:none;border-radius:10px;cursor:pointer}
+.ctl input[type=text]{width:120px;direction:ltr}
+.ctl .chips{display:flex;gap:6px;flex-wrap:wrap;width:100%;padding-inline-start:106px}
+.fonts-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--text);color:#171B24;padding:8px 16px;border-radius:10px;opacity:0;transition:opacity .2s;pointer-events:none;font-weight:600}
 #toast.show{opacity:1}
-@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+@media (max-width:760px){
+  .layout{display:block}
+  .side{position:static;width:auto;height:auto;border-left:0;border-bottom:1px solid var(--line);padding:16px}
+  .stitle{margin-bottom:10px}
+  .snav{flex-direction:row;overflow-x:auto}
+  .snav button{white-space:nowrap}
+  .fonts-row{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){#toast,.canvas{transition:none}}
 </style>
 </head>
 <body>
+<div class="layout">
+<aside class="side">
+  <h2 class="stitle">تنسيق الألوان والخطوط</h2>
+  <nav class="snav" aria-label="أقسام الأداة">
+    <button data-panel="p1" aria-current="true">قيّم اللوحة</button>
+    <button data-panel="p3" aria-current="false">المعاينة والخطوط</button>
+    <button data-panel="p2" aria-current="false">اقتراح الألوان</button>
+  </nav>
+</aside>
 <div class="wrap">
   <header>
-    <h1>منسق بصري</h1>
-    <p class="sub">اختر لوناً وعدّل درجته مباشرة، وقيّم لوحتك لمشروعك، أو اطلب لوحات مقترحة من وصف مشروعك.</p>
+    <h1>منسق</h1>
+    <p class="sub">اختر لوناً وعدّل درجته، وقيّم لوحتك لمشروعك، أو اطلب لوحات مقترحة من وصف مشروعك.</p>
   </header>
 
   <div class="strip" id="strip" aria-hidden="true"></div>
 
-  <div class="field">
+  <div class="field" style="margin-bottom:16px">
     <label for="proj">نوع المشروع</label>
     <select id="proj"></select>
   </div>
@@ -117,6 +158,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
       </div>
       <p class="err" id="err" role="alert"></p>
     </div>
+
     <div class="card picker" id="picker">
       <h3>أداة اختيار اللون</h3>
       <div class="psel" id="psel"></div>
@@ -134,6 +176,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
         </div>
       </div>
     </div>
+
     <div id="result"></div>
   </section>
 
@@ -146,6 +189,24 @@ button:disabled{opacity:.4;cursor:not-allowed}
     </div>
     <div id="sugOut"></div>
   </section>
+
+  <section id="p3" role="tabpanel" hidden>
+    <div class="card">
+      <h3 style="font-size:17px;margin:0 0 6px;font-weight:700">معاينة التصميم</h3>
+      <p class="hint">عدّل لون الخلفية والعنوان والفقرة كلاً على حدة، وشاهد التباين مباشرة. الألوان المقترحة من لوحتك تظهر تحت كل حقل.</p>
+      <div class="canvas" id="canvas"></div>
+      <div id="pvVerdict"></div>
+    </div>
+    <div class="card">
+      <div id="ctrls"></div>
+      <div class="fonts-row">
+        <div class="field"><label for="hFont">خط العنوان</label><select id="hFont"></select></div>
+        <div class="field"><label for="bFont">خط الفقرة</label><select id="bFont"></select></div>
+      </div>
+      <div class="btns"><button class="ghost" id="resetPv">استخدم ألوان اللوحة</button></div>
+    </div>
+  </section>
+</div>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -198,9 +259,13 @@ const MOODS = {
 };
 
 const EXAMPLES = ["تطبيق تقني لإدارة المحافظ المالية","عيادة أسنان للأطفال","علامة عطور فاخرة","مزرعة عضوية تبيع الخضار","مطعم شاورما شبابي"];
+const FONTS = ['Cairo','Tajawal','IBM Plex Sans Arabic','Almarai','Noto Kufi Arabic','Changa'];
 
 /* ---------- الحالة ---------- */
 const state = { colors:["#1B1F2A","#E8B04B","#ECE7DC"], project:"" };
+const pk = {sel:0, h:0, s:0, v:0};
+const pvc = {bg:'#FFFFFF', hc:'#000000', pc:'#333333', tint:'#000000'};
+const ft = {h:'Cairo', b:'Tajawal'};
 
 /* ---------- أدوات الألوان ---------- */
 const norm = s => s.toLowerCase().replace(/[\u064B-\u065F]/g,"").replace(/[إأآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي");
@@ -237,6 +302,7 @@ const lum = hex => hexRgb(hex).map(c=>{c/=255; return c<=0.03928?c/12.92:Math.po
 const contrast = (a,b) => { const x=lum(a), y=lum(b); return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05); };
 const dist = (a,b) => { const A=hexRgb(a), B=hexRgb(b); return Math.hypot(A[0]-B[0],A[1]-B[1],A[2]-B[2]); };
 const hueDiff = (a,b) => { const d=Math.abs(a-b)%360; return d>180?360-d:d; };
+const contrastBest = (ref, cands) => cands.reduce((best,c)=> contrast(c,ref)>contrast(best,ref)?c:best, cands[0]);
 
 // يعدّل سطوع اللون في الاتجاه المطلوب حتى يبلغ التباين الهدف
 function adjust(hex, bg, dir, target=4.5){
@@ -249,6 +315,8 @@ function adjust(hex, bg, dir, target=4.5){
   }
   return {hex:hslHex(h,s,Math.min(100,Math.max(0,l))), ok:false};
 }
+const verdictFor = r => r>=4.5 ? {c:'ok',t:'مقروء بوضوح'} : r>=3 ? {c:'warn',t:'مقبول للعناوين الكبيرة فقط'} : {c:'bad',t:'غير مقروء'};
+const verdictHtml = (v,detail,extra) => `<div class="pvv ${v.c}"><strong>${v.t}</strong><span>${detail}</span>${extra?`<span>${extra}</span>`:''}</div>`;
 
 /* ---------- التقييم ---------- */
 function evaluate(cols, project){
@@ -256,12 +324,10 @@ function evaluate(cols, project){
   const n=cols.length;
   const info = cols.map((c,i)=>{ const [h,s,l]=rgbHsl(hexRgb(c)); return {i,c,h,s,l}; });
 
-  // 1) عدد الألوان
   if(n<3){ penalty+=10; checks.push({s:"warn",t:"عدد الألوان قليل",d:`لديك ${n} ألوان فقط. لوحة من 3 إلى 5 ألوان تمنحك مرونة كافية.`}); }
   else if(n>5){ penalty+=10; checks.push({s:"warn",t:"عدد الألوان كبير",d:`${n} ألوان قد تشتّت المتلقي. اختر لوناً أساسياً وآخر للتمييز وخفّف الباقي.`}); }
   else checks.push({s:"ok",t:"عدد الألوان مناسب",d:`${n} ألوان ضمن النطاق المثالي.`});
 
-  // 2) الألوان المتشابهة
   let dup=0;
   for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){
     if(dist(cols[i],cols[j])<45){
@@ -274,7 +340,6 @@ function evaluate(cols, project){
     }
   }
 
-  // 3) التباين للنصوص
   if(n>=2){
     const sorted=[...cols].sort((a,b)=>lum(b)-lum(a));
     const light=sorted[0], dark=sorted[sorted.length-1];
@@ -291,7 +356,6 @@ function evaluate(cols, project){
     } else checks.push({s:"ok",t:"التباين كافٍ للنصوص",d:`أعلى تباين بين الألوان هو ${cr.toFixed(1)}:1.`});
   }
 
-  // 4) الألوان الصارخة
   const vivid = info.filter(x=>x.s>=80 && x.l>=25 && x.l<=75);
   if(vivid.length>2){
     penalty+=10;
@@ -299,7 +363,6 @@ function evaluate(cols, project){
     vivid.slice(1).forEach(x=>fixes.push({i:x.i,type:"replace",to:hslHex(x.h,55,x.l),reason:"خفّفت التشبع"}));
   }
 
-  // 5) تناغم الأصباغ
   const chrom = info.filter(x=>x.s>=15 && x.l>8 && x.l<95);
   if(chrom.length>=2){
     const diffs=[];
@@ -323,14 +386,12 @@ function evaluate(cols, project){
     }
   }
 
-  // 6) تدرج السطوع
   if(n>=3){
     const Ls=info.map(x=>x.l), range=Math.max(...Ls)-Math.min(...Ls);
     if(range<30){ penalty+=5; checks.push({s:"warn",t:"الإضاءة متقاربة",d:"كل الألوان تقريباً بنفس السطوع، فيصعب بناء تسلسل بصري. أضف لوناً فاتحاً جداً أو داكناً جداً."}); }
     else checks.push({s:"ok",t:"تدرج جيد في السطوع",d:"وجود درجات فاتحة وداكنة يصنع تسلسلاً واضحاً للعين."});
   }
 
-  // 7) ملاءمة نوع المشروع
   const P=PROJECTS[project];
   if(P && P.sat && chrom.length){
     const avg=chrom.reduce((a,x)=>a+x.s,0)/chrom.length;
@@ -349,7 +410,7 @@ function evaluate(cols, project){
   return {score:Math.max(0,100-penalty), checks, fixes};
 }
 
-/* ---------- العرض ---------- */
+/* ---------- العرض العام ---------- */
 const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 function toast(msg){
@@ -436,79 +497,7 @@ function runEval(){
   renderResult(evaluate(state.colors, state.project));
 }
 
-/* ---------- اقتراح الألوان ---------- */
-function suggest(){
-  const pid=$("#proj").value;
-  const text = norm($("#desc").value + (pid?" "+PROJECTS[pid].label:""));
-  const out=$("#sugOut");
-  if(!text.trim()){ out.innerHTML=`<div class="card"><span style="color:var(--muted)">اكتب وصفاً لمشروعك أو اختر نوعه أولاً.</span></div>`; return; }
-
-  let scored = Object.keys(MOODS).filter(k=>k!=="default").map(k=>({
-    k, s: MOODS[k].words.reduce((a,w)=>a+(text.includes(norm(w))?1:0),0)
-  }));
-  const pm = PROJECTS[pid].mood;
-  if(pm) scored.forEach(x=>{ if(x.k===pm) x.s+=3; });
-  let top = scored.filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,2).map(x=>x.k);
-  if(!top.length) top=["default"];
-
-  out.innerHTML = top.map(k=>`
-    <div class="mood"><h3>${MOODS[k].label}</h3>
-    ${MOODS[k].palettes.map((p,pi)=>`
-      <div class="pal">
-        <h4>${esc(p.name)}</h4>
-        <div class="sw">${p.colors.map(c=>`<div style="background:${c}"></div>`).join("")}</div>
-        <div class="codes">${p.colors.map(c=>`<button class="chip" data-copy="${c}"><i style="background:${c}"></i>${c}</button>`).join("")}</div>
-        <button class="ghost" data-use="${k}|${pi}">قيّم هذه اللوحة</button>
-      </div>`).join("")}
-    </div>`).join("");
-}
-
-/* ---------- التهيئة ---------- */
-function init(){
-  $("#proj").innerHTML = Object.keys(PROJECTS).map(k=>`<option value="${k}">${PROJECTS[k].label}</option>`).join("");
-  $("#proj").addEventListener("change",e=>{ state.project=e.target.value; runEval(); });
-
-  $("#exs").innerHTML = EXAMPLES.map(e=>`<button>${e}</button>`).join("");
-  $("#exs").addEventListener("click",e=>{ if(e.target.tagName==="BUTTON"){ $("#desc").value=e.target.textContent; suggest(); } });
-
-  $("#add").addEventListener("click",()=>{ if(state.colors.length<6){ state.colors.push("#808080"); renderInputs(); runEval(); } });
-  $("#evalBtn").addEventListener("click",()=>{
-    const bad = state.colors.some(c=>!normHex(c));
-    $("#err").textContent = bad ? "بعض الأكواد غير صحيحة. استخدم صيغة مثل #1A2B3C." : "";
-    if(!bad) runEval();
-  });
-
-  document.querySelectorAll('[role="tab"]').forEach(btn=>btn.addEventListener("click",()=>switchTab(btn.dataset.tab)));
-  $("#sugBtn").addEventListener("click",suggest);
-
-  $("#sugOut").addEventListener("click",e=>{
-    const cp=e.target.closest("[data-copy]");
-    if(cp) return copy(cp.dataset.copy);
-    const use=e.target.closest("[data-use]");
-    if(use){
-      const [k,pi]=use.dataset.use.split("|");
-      state.colors = MOODS[k].palettes[+pi].colors.slice();
-      renderInputs(); switchTab("p1"); runEval();
-      window.scrollTo({top:0,behavior:"smooth"});
-    }
-  });
-
-  pkSetup();
-  renderInputs(); runEval();
-}
-
-function switchTab(id){
-  document.querySelectorAll('[role="tab"]').forEach(b=>{
-    const on=b.dataset.tab===id;
-    b.setAttribute("aria-selected",on); b.tabIndex=on?0:-1;
-  });
-  $("#p1").hidden = id!=="p1";
-  $("#p2").hidden = id!=="p2";
-}
-
 /* ---------- أداة اختيار اللون ---------- */
-const pk = {sel:0, h:0, s:0, v:0};
-
 function hsvToHex(h,s,v){
   const c=v*s, x=c*(1-Math.abs((h/60)%2-1)), m=v-c;
   const [r,g,b] = h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
@@ -541,13 +530,14 @@ function pkRender(){
   $("#phex").textContent=hex;
   $("#psel").innerHTML=state.colors.map((c,i)=>`<button aria-pressed="${i===pk.sel}" aria-label="اختر اللون ${c}" data-i="${i}" style="background:${c}"></button>`).join("");
 }
-// يلتقط التغييرات الخارجية (كتابة كود، تطبيق تصحيح، لوحة مقترحة...)
+// يلتقط أي تغيير خارجي للألوان ويحدّث الأداة والمعاينة
 function pkSync(){
   if(pk.sel>=state.colors.length) pk.sel=0;
   if(hsvToHex(pk.h,pk.s,pk.v)!==state.colors[pk.sel]) pkLoad();
   pkRender();
+  renderPreview();
 }
-// خ=خفيف أثناء السحب، كامل عند الانتهاء
+// يحفظ تغييرات السحب؛ الكامل يعيد بناء القوائم والتقييم
 function pkSet(full){
   state.colors[pk.sel]=hsvToHex(pk.h,pk.s,pk.v);
   renderStrip(); pkRender();
@@ -576,6 +566,183 @@ function pkSetup(){
     const b=e.target.closest("[data-i]"); if(!b) return;
     pk.sel=+b.dataset.i; pkLoad(); pkRender();
   });
+}
+
+/* ---------- المعاينة والخطوط ---------- */
+const CTRL=[['bg','لون الخلفية'],['hc','لون العنوان'],['pc','لون الفقرة'],['tint','طبقة الصورة']];
+
+function buildCtrls(){
+  $("#ctrls").innerHTML = CTRL.map(([k,l])=>`
+    <div class="ctl">
+      <span class="cl">${l}</span>
+      <input type="color" data-k="${k}" aria-label="${l}">
+      <input type="text" data-k="${k}" dir="ltr" maxlength="7" aria-label="كود ${l}">
+      <div class="chips" data-chips="${k}"></div>
+    </div>`).join("");
+}
+
+let chipKey='';
+function renderPreview(){
+  if(!$("#canvas")) return;
+  const key=state.colors.join("|");
+  if(key!==chipKey){
+    chipKey=key;
+    document.querySelectorAll("[data-chips]").forEach(el=>{
+      el.innerHTML=state.colors.map(c=>`<button class="chip" data-k="${el.dataset.chips}" data-v="${c}"><i style="background:${c}"></i>${c}</button>`).join("");
+    });
+  }
+  renderCanvas();
+}
+
+function textCheck(label,key){
+  const fg=pvc[key], bg=pvc.bg;
+  const r=contrast(fg,bg), v=verdictFor(r);
+  const fx = r<4.5 ? adjust(fg, bg, lum(bg)>lum(fg)?-1:1) : null;
+  const fixBtn = (fx&&fx.ok) ? `<div class="btns"><button class="ghost" data-fix="${key}" data-to="${fx.hex}">طبّق اللون المقترح ${fx.hex}</button></div>` : '';
+  return `<div class="pvv ${v.c}"><strong>${label}: ${v.t}</strong><span>نسبة التباين ${r.toFixed(1)}:1 بين ${fg} والخلفية ${bg}</span>${fixBtn}</div>`;
+}
+
+function renderCanvas(){
+  const {bg,hc,pc,tint}=pvc;
+  const hf=`${ft.h}, sans-serif`, bf=`${ft.b}, sans-serif`;
+  const p=state.colors, n=p.length;
+  const svg=`<svg viewBox='0 0 400 130' preserveAspectRatio='xMidYMid slice' aria-hidden='true'>
+      <defs><linearGradient id='pvg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='${p[0]}'/><stop offset='1' stop-color='${p[n-1]}'/></linearGradient></defs>
+      <rect width='400' height='130' fill='url(#pvg)'/>
+      <circle cx='300' cy='50' r='40' fill='${p[1%n]}' opacity='.9'/>
+      <path d='M0 110 Q110 70 220 105 T400 95 V130 H0Z' fill='${p[2%n]}'/>
+      <rect x='36' y='24' width='96' height='48' rx='10' fill='${p[n-1]}' opacity='.75'/>
+    </svg>`;
+  const cv=$("#canvas");
+  cv.style.background=bg;
+  cv.innerHTML=`<div class="imgband">${svg}<div class="tint" style="background:${tint}"></div></div>
+    <div class="txt">
+      <h4 style="color:${hc};font-family:${hf}">عنوان تجريبي للمشروع</h4>
+      <p style="color:${pc};font-family:${bf}">نص تجريبي يوضح كيف يظهر لون الفقرة على الخلفية المختارة. القراءة المريحة للنصوص الطويلة تعتمد على التباين الكافي بين اللون والخلفية.</p>
+    </div>`;
+  $("#pvVerdict").innerHTML = textCheck("العنوان","hc") + textCheck("الفقرة","pc");
+  syncCtrls();
+}
+
+function syncCtrls(){
+  Object.keys(pvc).forEach(k=>{
+    const col=document.querySelector(`#ctrls input[type=color][data-k='${k}']`);
+    const txt=document.querySelector(`#ctrls input[type=text][data-k='${k}']`);
+    if(col) col.value=pvc[k].toLowerCase();
+    if(txt && document.activeElement!==txt) txt.value=pvc[k];
+  });
+}
+
+function resetPv(){
+  const cols=state.colors;
+  pvc.bg=[...cols].sort((a,b)=>lum(b)-lum(a))[0];
+  const cands=[...cols,'#000000','#FFFFFF'].filter(c=>c!==pvc.bg);
+  pvc.hc=contrastBest(pvc.bg,cands);
+  pvc.pc=contrastBest(pvc.bg,cands.filter(c=>c!==pvc.hc));
+  pvc.tint=cols[cols.length-1];
+  renderPreview();
+}
+
+function previewSetup(){
+  buildCtrls();
+  const opts=FONTS.map(f=>`<option>${f}</option>`).join('');
+  $("#hFont").innerHTML=opts; $("#bFont").innerHTML=opts;
+  $("#hFont").value=ft.h; $("#bFont").value=ft.b;
+  $("#hFont").addEventListener("change",e=>{ ft.h=e.target.value; renderCanvas(); });
+  $("#bFont").addEventListener("change",e=>{ ft.b=e.target.value; renderCanvas(); });
+
+  $("#ctrls").addEventListener("input",e=>{
+    const k=e.target.dataset.k; if(!k) return;
+    if(e.target.type==="color") pvc[k]=e.target.value.toUpperCase();
+    else { const v=normHex(e.target.value); if(!v) return; pvc[k]=v; }
+    renderCanvas();
+  });
+  $("#ctrls").addEventListener("change",e=>{
+    const k=e.target.dataset.k;
+    if(k && e.target.type==="text") e.target.value=pvc[k];
+  });
+  $("#ctrls").addEventListener("click",e=>{
+    const c=e.target.closest(".chip"); if(!c) return;
+    pvc[c.dataset.k]=c.dataset.v; renderCanvas();
+  });
+  $("#pvVerdict").addEventListener("click",e=>{
+    const b=e.target.closest("[data-fix]"); if(!b) return;
+    pvc[b.dataset.fix]=b.dataset.to; renderCanvas();
+  });
+  $("#resetPv").addEventListener("click",resetPv);
+  resetPv();
+}
+
+/* ---------- الاقتراحات ---------- */
+function suggest(){
+  const pid=$("#proj").value;
+  const text = norm($("#desc").value + (pid?" "+PROJECTS[pid].label:""));
+  const out=$("#sugOut");
+  if(!text.trim()){ out.innerHTML=`<div class="card"><span style="color:var(--muted)">اكتب وصفاً لمشروعك أو اختر نوعه أولاً.</span></div>`; return; }
+
+  let scored = Object.keys(MOODS).filter(k=>k!=="default").map(k=>({
+    k, s: MOODS[k].words.reduce((a,w)=>a+(text.includes(norm(w))?1:0),0)
+  }));
+  const pm = PROJECTS[pid].mood;
+  if(pm) scored.forEach(x=>{ if(x.k===pm) x.s+=3; });
+  let top = scored.filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,2).map(x=>x.k);
+  if(!top.length) top=["default"];
+
+  out.innerHTML = top.map(k=>`
+    <div class="mood"><h3>${MOODS[k].label}</h3>
+    ${MOODS[k].palettes.map((p,pi)=>`
+      <div class="pal">
+        <h4>${esc(p.name)}</h4>
+        <div class="sw">${p.colors.map(c=>`<div style="background:${c}"></div>`).join("")}</div>
+        <div class="codes">${p.colors.map(c=>`<button class="chip" data-copy="${c}"><i style="background:${c}"></i>${c}</button>`).join("")}</div>
+        <button class="ghost" data-use="${k}|${pi}">قيّم هذه اللوحة</button>
+      </div>`).join("")}
+    </div>`).join("");
+}
+
+/* ---------- التهيئة ---------- */
+function switchTab(id){
+  document.querySelectorAll('[role="tab"]').forEach(b=>{
+    const on=b.dataset.tab===id;
+    b.setAttribute("aria-selected",on); b.tabIndex=on?0:-1;
+  });
+  ["p1","p2","p3"].forEach(p=>{ const el=$("#"+p); if(el) el.hidden = p!==id; });
+  document.querySelectorAll(".snav [data-panel]").forEach(b=>b.setAttribute("aria-current", String(b.dataset.panel===id)));
+  window.scrollTo({top:0});
+}
+
+function init(){
+  $("#proj").innerHTML = Object.keys(PROJECTS).map(k=>`<option value="${k}">${PROJECTS[k].label}</option>`).join("");
+  $("#proj").addEventListener("change",e=>{ state.project=e.target.value; runEval(); });
+
+  $("#exs").innerHTML = EXAMPLES.map(e=>`<button>${e}</button>`).join("");
+  $("#exs").addEventListener("click",e=>{ if(e.target.tagName==="BUTTON"){ $("#desc").value=e.target.textContent; suggest(); } });
+
+  $("#add").addEventListener("click",()=>{ if(state.colors.length<6){ state.colors.push("#808080"); renderInputs(); runEval(); } });
+  $("#evalBtn").addEventListener("click",()=>{
+    const bad = state.colors.some(c=>!normHex(c));
+    $("#err").textContent = bad ? "بعض الأكواد غير صحيحة. استخدم صيغة مثل #1A2B3C." : "";
+    if(!bad) runEval();
+  });
+
+  document.querySelectorAll('[role="tab"]').forEach(btn=>btn.addEventListener("click",()=>switchTab(btn.dataset.tab)));
+  document.querySelectorAll(".snav [data-panel]").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.panel)));
+  $("#sugBtn").addEventListener("click",suggest);
+
+  $("#sugOut").addEventListener("click",e=>{
+    const cp=e.target.closest("[data-copy]");
+    if(cp) return copy(cp.dataset.copy);
+    const use=e.target.closest("[data-use]");
+    if(use){
+      const [k,pi]=use.dataset.use.split("|");
+      state.colors = MOODS[k].palettes[+pi].colors.slice();
+      renderInputs(); switchTab("p1"); runEval();
+    }
+  });
+
+  pkSetup();
+  previewSetup();
+  renderInputs(); runEval();
 }
 
 init();
